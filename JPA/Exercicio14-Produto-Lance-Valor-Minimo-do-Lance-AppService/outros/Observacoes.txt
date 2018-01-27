@@ -1,0 +1,32 @@
+Acrescentei validação do Produto e do Lance.
+============================================
+
+Validação do Produto:
+=====================
+
+- Valor do lance mínimo não pode ser <= zero.
+
+- A data de cadastro do produto deve ser válida.
+
+- A data de cadastro do produto não pode ser posterior à data 
+  de hoje.
+
+
+Validação do lance:
+===================
+
+- Dois lances não podem ser cadastrados ao mesmo tempo.
+
+- Caso seja o primeiro lance do Produto, o valor do lance deve
+  ser >= ao valor do lance mínimo.
+
+- Caso não seja o primeiro lance do Produto, o valor do  lance 
+  deve ser > do que o valor do último lance.
+
+- A data de criação do lance deve ser válida.
+
+- Caso seja o primeiro lance do Produto, a data de  criação do
+  lance deve ser >= à data de cadastro do produto.
+
+- Caso não seja o primeiro lance do Produto, a data de criação
+  do lance deve ser >= à data do último lance.

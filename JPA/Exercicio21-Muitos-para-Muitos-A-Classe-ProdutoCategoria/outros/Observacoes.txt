@@ -1,0 +1,5 @@
+Trata-se de um relacionamento muitos-para-muitos modelado como dois 
+===================================================================
+relacionamentos muitos-para-um.
+===============================
+

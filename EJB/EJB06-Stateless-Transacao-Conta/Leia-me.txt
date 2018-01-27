@@ -1,0 +1,201 @@
+Propriedades ACID de uma transação:
+
+Atômicidade
+===========
+
+Transações são atômicas por natureza. Ou toda a transação é confirmada através
+de um commit, ou toda ela é desfeita através de um rollback. 
+
+Consistência
+============
+
+Se um sistema se encontra em um estado de consistência em relação às regras de
+negócio  antes  de uma  transação começar, ele deverá  permanecer em estado de 
+consistência  após a  transação sofrer  rollback ou  após ela  ser comitada. O 
+sistema não  precisa estar em um estado  consistente durante a execução de uma 
+transação.  Não importa se durante uma  transação os  dados se encontram em um
+estado inconsistente.
+
+Isolamento
+==========
+
+A propriedade de isolamento garante que uma  transação não deve  interferir em 
+afetar os dados de outra. O gerenciador de transação deve garantir que ninguém
+toca nos dados de uma transação enquanto ele está sendo executada.
+
+Durabilidade
+============
+
+Uma transação, uma vez comitada, tem seus dados salvos de forma permanente.
+
+Níveis de Isolamento:
+
+- read uncommited
+- read commited
+- repeatable read
+- serializable
+
+
+O  suporte ao gerenciamento de transação em EJB é provido  através da API Java 
+Transaction (JTA).  JTA  é  uma  pequena  API  de  alto  nível  que  garante o
+gerenciamento de transações distribuídas, tipicamente fornecido por servidores
+de aplições. 
+
+Há  duas  formas  de  utilizar  transações  em  EJB:  declarativa (através  de
+anotações ou através de um descritor de deployment) e outra programática. 
+
+Anotações
+=========
+
+@TransactionManagement(TransactionManagementType.CONTAINER) - diz ao container
+que ele deve gerenciar as transações para o bean.  (ESTE É O DEFAULT)
+
+@Resource private SessionContext context; - o contexto EJB é injetado no bean. 
+
+@TransactionAttribute(TransactionAttributeType.REQUIRED)  -  uma  transação  é
+requerida para o método. Uma transação deve ser iniciada pelo container quando
+necessário.
+
+Se  uma  exceção  é  propagada,  pedimos  ao container para efetuar o rollback
+da transação através do método setRollbackOnly do objeto EJBContext injetado.
+
+
+EFEITOS DOS ATRIBUTOS DE TRANSAÇÕES EM MÉTODOS EJB
+==================================================
+
+==========================================================================================
+                       |    Há uma Transação   |                  
+Transaction Attribute  |   iniciada por quem   |            Efeito
+                       |   efetuou a chamada   |
+                       |        do EJB?        |                                    
+==========================================================================================
+  REQUIRED             |         NÃO           | O container cria uma nova transação.
+------------------------------------------------------------------------------------------
+                       |         SIM           | O método utiliza a transação do chamador.
+==========================================================================================
+  REQUIRES_NEW         |         NÃO           | O container cria uma nova transação.
+------------------------------------------------------------------------------------------
+                       |         SIM           | O container cria uma nova transação e
+                       |                       | a transação do chamador é suspendida.
+==========================================================================================
+  SUPPORTS             |         NÃO           | Nenhuma transação é utilizada.   
+------------------------------------------------------------------------------------------
+                       |         SIM           | O método utiliza a transação do chamador.
+==========================================================================================
+  MANDATORY            |         NÃO           | A exceção javax.ejb.
+                       |                       | EJBTransactionRequiredException é
+                       |                       | propagada.
+------------------------------------------------------------------------------------------
+                       |         SIM           | O método utiliza a transação do chamador.
+==========================================================================================
+  NOT_SUPPORTED        |         NÃO           | Nenhuma transação é utilizada.  
+------------------------------------------------------------------------------------------
+                       |         SIM           | A transação do chamador é suspendida
+                       |                       | e o método é chamado sem uma transação.
+==========================================================================================
+  NEVER                |         NÃO           | Nenhuma transação é utilizada.
+------------------------------------------------------------------------------------------
+                       |         SIM           | A exceção javax.ejb.EJBException é
+                       |                       | propagada.
+==========================================================================================
+
+REQUIRED - é o DEFAULT e é também o atributo mais aplicado a transações. 
+
+Se o método é chamado a partir de um cliente não transacional, o container irá 
+iniciar uma transação antes do método ser chamado  é  irá  terminá-la quando o
+método retornar. Por outro lado, se o chamador invoca o método a partir de  um
+contexto transacional, o método irá se juntar à  transação existente. No  caso
+de transações propagadas a partir do  cliente,  se  nosso  método indica que a
+transação  deve  sofrer  rollback, o  container  irá  efetuar  o  rollback  da
+transação   e   irá   propagar   uma   exceção   do   tipo  javax.transaction.
+RollbackException para o cliente.
+
+
+Marcando um CMT para Rollback
+=============================
+
+A execução do método contextoEJB.setRollbackOnly() não faz com que a transação
+sofra rollback imediatamente. Um flag é designado para o  container  para  que
+ele faça o rollback quando a transação terminar.  Nunca  se  deve  executar  o
+método contextoEJB.setRollbackOnly() a menos que se tenha certeza  que  existe
+uma transação corrente.  Se  seu  método  não  for  executado  em  um contexto
+transacional, ao ser executado o método setRollbackOnly()  ocorrerá  a exceção
+java.lang.IllegalStateException. 
+
+O método contextoEJB.getRollbackOnly()  retorna  um  boleano  que  indica se a
+transação corrente já foi designada para sofrer rollback. 
+
+
+Transações e Tratamento de Exceções
+===================================
+
+Para evitar o  estilo  de  código  abaixo,  EJB3 introduziu a possibilidade de
+controlar  o  término  de  uma  transação  através  da  anotação   @javax.ejb.
+ApplicationException. 
+
+     public void fazAlgo() throws Excecao1, Excecao2
+     {   
+         try
+         {   metodo1();
+             metodo2();
+         }
+         catch(Excecao1 e)
+         {   contextoEJB.setRollbackOnly();
+         }
+         catch(Excecao2 e)
+         {   contextoEJB.setRollbackOnly();
+         }
+     }
+
+Utilizando @ApplicationException para efetuar o rollback de CMTs
+================================================================
+	 
+     public void fazAlgo() throws Excecao1, Excecao2
+     {   metodo1();
+         metodo2();
+     }
+     
+     @ApplicationException(rollback="true")
+     public class Excecao1 extends Exception
+     {   ...
+     }
+     
+     @ApplicationException(rollback="false")
+     public class Excecao2 extends Exception
+     {   ...
+     }
+     
+(1)A primeira modificação é que  os  blocos  try-catch  desapareceram  e foram
+substituídos por cláusulas throws. (2)Mas é  interessante tratar  as  exceções
+no cliente para gerar mensagens de erro. (3) A anotação  @ApplicationException
+identifica uma aplicação checked ou unchecked como uma application exception.
+
+Em EJB uma application  exception é uma  exceção que a aplicação  cliente deve
+tratar.   Por   default,   todas   as   exceções   checked,  exceto  java.rmi.
+RemoteException são consideradas application exceptions. Por outro lado, todas
+as  subclasses de  java.rmi.RemoteException ou java.lang.RuntimeException  são
+system exceptions. Em EJB, as exceções do tipo system exceptions são  exceções
+que as aplicações cliente não esperam receber. Quando estas exceções acontecem
+elas não são passadas para a aplicação cliente como estão: são empacotadas  em
+uma javax.ejb.EJBException.
+
+No   código   acima,   a   anotação   @ApplicationException  não  altera  este
+comportamento  default,  uma  vez  que  ambas  as exceções  seriam Application
+Exceptions de qualquer forma. 
+
+Mais  do  que  a  anotação  @ApplicationException,  o  elemento  rollback muda
+profundamente o comportamento default.
+
+Por default,  applications exceptions  não causam  um rollback automático, uma
+vez  que  o  valor  default  do  elemento  rollback é  false.  No  entanto, se
+atribuirmos o valor true a este elemento a transação sofrerá um rollback antes
+da exceção ser enviada para a aplicação cliente.
+
+Se     o     container     detectar     uma     system     exception,     como
+um ArrayIndexOutOfBoundsException ou NullPointerException, ele  irá efetuar  o
+rollback da transação CMT. No entanto, nestes casos o  container  irá  assumir
+que  o  bean  está  em  um  estado  inconsistente  e irá destruir a instância.
+Em  função  desta  destruição da  instância do bean, não de deve  gerar system
+exceptions desnecessariamente. 
+
+

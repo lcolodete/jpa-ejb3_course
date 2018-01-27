@@ -1,0 +1,254 @@
+Por default, associações "single point" são  implementadas  através     
+do uso de um proxy. 
+
+Há dois tipos de associações um-para-um:
+========================================
+
+• associações de chaves primárias
+• associações que utilizam chaves estrangeiras únicas.
+
+Associações de chaves primárias não necessitam de uma coluna extra;
+se duas linhas estão relacionadas por este tipo de associação então
+duas  linhas  de  tabelas  compartilham  o  mesmo  valor  de  chave 
+primária. Logo, se você deseja que dois objetos sejam  relacionados 
+através de uma associação de  chave primária é  preciso ter certeza 
+de que eles recebem o mesmo valor de identificador!
+
+Para  uma  associação de  chave  primária,  adicione  os  seguintes 
+mapeamentos para Pessoa e Empregado respectivamente:
+
+   <one-to-one name="empregado" class="Empregado" />
+   <one-to-one name="pessoa" class="Pessoa" constrained="true"/>
+
+Agora  é  preciso  garantir  que  as  chaves  primárias  das linhas 
+relacionadas das tabelas PESSOA e EMPREGADO são iguais.  Para fazer 
+isso deve ser utilizado a  estratégia de  geração de  identificador
+denominada foreign:
+
+   <class name="Empregado" table="EMPREGADO">
+      <id name="id" column="EMPREGADO_ID">
+         <generator class="foreign">
+            <param name="property">pessoa</param>
+         </generator>
+      </id>
+
+      ...
+
+      <one-to-one name="pessoa"
+                  class="Pessoa"
+                  constrained="true"/>
+
+      <!-- constrained (optional):  especifica  que  uma constraint 
+           de chave  estrangeira sobre a  chave primária da  tabela
+           mapeada  (EMPREGADO)  referencia  a  tabela  da   classe 
+           associada  (PESSOA).  Esta opção  afeta a  ordem na qual 
+           save() e delete() são cascateados.
+      -->
+
+   </class>
+
+
+Uma nova instância salva de Empregado recebe o mesmo valor de chave
+primária  que  a  instância Pessoa  referenciada  pela  propriedade 
+pessoa daquele Empregado.
+
+Alternativamente, uma chave  estrangeira com uma constraint unique, 
+de Empregado para Pessoa, pode ser expressa assim:
+
+Empregado
+
+   <many-to-one name="pessoa" 
+                class="Pessoa" 
+                column="PESSOA_ID" 
+                unique="true"/>
+
+E  esta   associação  pode  ser  transformada  em  uma   associação 
+bidirecional adicionando-se a linha abaixo ao arquivo de mapeamento
+da classe Pessoa:
+
+Pessoa
+
+   <one-to-one name"empregado" 
+               class="Empregado" 
+               property-ref="pessoa"/>
+
+property-ref:  (optional)  Identifica  o  nome  de  uma propriedade 
+(pessoa) da classe associada (Empregado) que aponta para esta chave
+estrangeira.  Se  não  especificado,  a  chave  primária  da classe 
+associada é utilizada.
+
+
+Estratégias de Busca
+====================
+
+Uma estratégia de busca é a estratégia que o Hibernate utiliza para
+recuperar objetos associados quando uma aplicação necessita navegar
+a  associação.  Estratégias  de  busca  podem  ser  declaradas  nos 
+arquivos de  mapeamento ou  podem ser  sobrescritas  através de uma 
+busca HQL em particular.
+
+O Hibernate define as seguintes estratégias de busca:
+
+• Join fetching - O Hibernate  recupera a  instância associada ou a 
+  coleção no mesmo SELECT, utilizando um OUTER JOIN.
+
+• Select fetching - um  segundo SELECT é utilizado para recuperar a 
+  entidade  associada  ou  a  coleção.  A  menos que se  desabilite 
+  explicitamente  o  "lazy fetching"  através de  azy="false", este 
+  segundo  select  só  será  executado  quando  a  associação   for 
+  realmente acessada.
+
+• Subselect fetching - um segundo SELECT é utilizado para recuperar 
+  as  coleções  associadas  para  todas as entidades recuperadas na
+  query ou fetch anterior. A menos que se desabilite explicitamente
+  o "lazy fetching"  através de  lazy="false",  este segundo select 
+  apenas  será  executado  quando  a  associação  for  efetivamente 
+  acessada.
+
+• Batch fetching - uma  estratégia que otimiza a estratégia "select 
+  fetching" -  O  Hibernate  recupera  "em batch"  um  conjunto  de 
+  instâncias  de entidade  ou colleções em um único SELECT, através 
+  da especificação de uma lista  de chaves  primárias ou de  chaves 
+  estrangeiras.
+
+
+O Hibernate também faz distinção entre:
+=======================================
+
+• Immediate  fetching -  uma  associação,  coleção  ou  atributo  é 
+  recuperado imediatamente quando seu dono é carregado.
+
+• Lazy  collection  fetching  -  uma  coleção é recuperada quando a 
+  aplicação chama uma operação sobre aquela coleção.
+  (Isto é o default para coleções.)
+
+• Proxy fetching -  uma  associação  "single-value"  é   recuperada 
+  quando  um  método  (que  não  o  método  get  que  recupera  seu 
+  identificador) é chamado sobre o objeto associado.
+
+• Lazy  attribute  fetching -  um  atributo  ou  associação "single 
+  value"  é  recuperado  quando a variável de instância é acessada. 
+  Esta abordagem é raramente necessária.
+
+Há duas questões a serem compreendidas aqui:  quando uma associação 
+é  recuperada, e  como  ela  é   recuperada  (qual  comando  SQL  é 
+utilizado). O fetch é utilizado para melhorar o desempenho. Pode-se 
+utilizar "lazy"  para  definir um  contrato para  quais dados estão 
+sempre  disponíveis em  qualquer instância  destacada de uma classe 
+particular.
+
+
+
+IMPORTANTE
+==========
+
+1. Utilizando o default em uma associação  "single point",  isto é, 
+lazy="true" e fetch="select"
+-------------------------------------------------------------------
+
+     <many-to-one name="lanceVencedor" 
+                  class="Lance" 
+                  column="LANCE_VENCEDOR_ID" 
+                  unique="true"/>
+
+o select  que recupera o  produto não recupera o lance vencedor. As 
+linhas abaixo
+
+     Lance lance = produto.getLanceVencedor();
+     System.out.println('\n' + "***********> " + 
+                        lance.getClass().getName() + '\n');
+
+mostram que o objeto lance é um proxy.
+
+O select que recupera  efetivamente o  lance só é executado  quando 
+uma propriedade  do lance é  recuperada,  isto é,  apenas quando  a 
+linha abaixo é executada:
+
+     System.out.println('\n' + "Lance Vencedor com valor = " + 
+                                lance.getValor());
+
+
+2. Utilizando  em  uma  associação  "single point"  lazy="false"  e 
+   fetch="select"
+-------------------------------------------------------------------
+
+     <many-to-one name="lanceVencedor" 
+                  class="Lance" 
+                  column="LANCE_VENCEDOR_ID" 
+                  unique="true"
+                  lazy="false"/>
+
+
+o select que recupera o produto não recupera o lance vencedor,  mas 
+o select que recupera este lance é executado em seguida uma vez que
+o objeto  lance não é mais um  proxy, e por esta  razão precisa ser 
+populado imediatamente.
+
+Através das linhas  de código abaixo podemos constatar que o objeto 
+lance não é mais um proxy:
+
+     Lance lance = produto.getLanceVencedor();
+     System.out.println('\n' + "***********> " + 
+                        lance.getClass().getName() + '\n');
+
+Esta solução não faz  sentido pois seria melhor, neste caso, emitir 
+um único select com um outer join.
+
+
+
+3. Utilizando  em  uma  associação  "single point"  lazy="false"  e 
+fetch="join"
+-------------------------------------------------------------------
+
+     <many-to-one name="lanceVencedor" 
+                  class="Lance"              
+                  column="LANCE_VENCEDOR_ID" 
+                  unique="true"
+                  lazy="false"
+                  fetch="join"/>
+
+
+o select que recupera o produto  também recupera  o lance vencedor. 
+Será utilizado, neste caso, um  outer join. Isto é, o  produto será 
+recuperado  juntamente com  seu lance  vencedor. E será  recuperado 
+mesmo que não possua um lance. 
+
+Através das linhas de código abaixo  podemos constatar que o objeto 
+lance não é um proxy:
+
+     Lance lance = produto.getLanceVencedor();
+     System.out.println('\n' + "***********> " + 
+                        lance.getClass().getName() + '\n');
+
+Esta  solução  é  a  melhor,  no  entanto,  recomenda-se  manter os 
+defaults do  hibernate e efetuar o  override destes defaults apenas 
+em tempo de execução utilizando HQL ou Criteria.
+
+
+4. Utilizando  em  uma   associação  "single point"  lazy="true"  e 
+fetch="join"
+-------------------------------------------------------------------
+
+     <many-to-one name="lanceVencedor" 
+                  class="Lance"              
+                  column="LANCE_VENCEDOR_ID" 
+                  unique="true"
+                  lazy="true"
+                  fetch="join"/>
+
+
+o select que recupera o produto  também  recupera o lance vencedor. 
+Será  utilizado, neste caso, um  outer join. Isto é, o produto será 
+recuperado juntamente com seu lance  vencedor.  E  será  recuperado 
+mesmo que não possua um lance. 
+
+Através das linhas de código  abaixo podemos constatar que o objeto 
+lance não é um proxy embora tenhamos especificado lazy="true":
+
+     Lance lance = produto.getLanceVencedor();
+     System.out.println('\n' + "***********> " + 
+                        lance.getClass().getName() + '\n');
+
+Não faz  sentido pedir  um proxy se a  estratégia de  recuperação é 
+fetch="join".
+

@@ -1,0 +1,19 @@
+O método add da interface Set (que extends Collection) retorna true se
+o  objeto  for  adicionado ao  Set.  Se o objeto ja  existir no Set, o 
+método add retorna false.
+
+Daí o código abaixo ter sido implementado assim:
+
+   if(produto.getCategorias().add(categoria)))
+   {    System.out.println('\n' + 
+   			"Categoria adicionada ao produto.");
+   }	
+   else
+   {    System.out.println('\n' + 
+   			"Este produto já pertence a esta categoria.");
+   }	
+
+Observe que no caso da remoção de um produto que possui uma associação 
+muitos  para  muitos   com  Categoria,   todas  as  linhas  da  tabela 
+PRODUTO_CATEGORIA  referentes  ao   produto   também   são   removidas 
+independente de nenhum mapeamento especial.

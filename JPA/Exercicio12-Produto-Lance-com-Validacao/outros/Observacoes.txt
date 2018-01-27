@@ -1,0 +1,74 @@
+Acrescentei validação do Produto e do Lance.
+
+Para isso foi preciso modificar o modo de acesso às propriedades de 
+Produto e de Lance. Agora todas as anotações são especificadas  nos
+atributos e não nos métodos.  Isto faz com que os  métodos do  tipo
+set deixem de ser utilizados para popular objetos cujos dados estão
+sendo recuperados do banco de dados.
+
+Exemplo:
+
+	@Id
+	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="SEQUENCIA")
+	@Column(name="ID")
+	private Long id;
+
+	@Column(nullable = false)
+	private double valor;
+	
+	@Column(name="DATA_CRIACAO", nullable = false)
+	private Date dataCriacao;
+
+	// Um lance se refere a um único produto
+
+	@ManyToOne(targetEntity=exercicio12.produto.Produto.class, fetch=FetchType.LAZY)
+	@JoinColumn(name="PRODUTO_ID", nullable=false)
+	private Produto produto;
+
+
+E foi preciso alterar:
+
+- os métodos set das classes Produto e Lance.
+- apenas os construtores sem argumentos são utilizados.
+
+*******************************************************************
+
+Métodos de acesso  podem realizar  validação, no  entanto, como  os 
+métodos do  tipo set  são utilizados  para popular  o estado de  um 
+objeto recuperado de um banco de dados, é razoável que a validação, 
+neste  caso,   não  aconteça.  Logo  é  preciso  dizer  à  JPA para 
+que ela acesse diretamente os  valores das variáveis de  instância. 
+
+Um  outro  assunto  a   considerar   é   o  dirty  checking.  A JPA 
+detecta    automaticamente    mudanças   de   estado   e   atualiza 
+automaticamente  o  novo  estado  no  banco de dados.  Geralmente é 
+seguro  retornar,  através de  um método  get, um  objeto diferente 
+daquele  atribuído  através de um método set. A   JPA  compara   os
+objetos (para saber se houve uma mudança de estado, e  para decidir
+se deve atualizar o banco de dados) por valor. 
+
+Por  exemplo,  o  comando  get  abaixo  não resultará em um comando 
+UPDATE desnecessário.
+
+public String getPrimeiroNome()
+{	return new String (primeiroNome);
+}
+
+No entanto, há uma exceção muito importante: Coleções são comparadas
+por identidade.
+
+Para uma propriedade mapeada como uma coleção persistente, o  método
+get deve retornar a mesma instância atribuída pelo método set,  caso
+contrário  a   JPA  irá  atualizar o  banco  de  dados,  mesmo   que 
+nenhuma   atualização  seja   necessária,  toda  vez  que  a  sessão 
+sincronizar com o banco de dados o estado armazenado na memória.
+
+Este tipo de código deve ser evitado:
+
+public void setNomes(List listaDeNomes)
+{	nomes = (String[])listaDeNomes.toArray();
+}
+
+public List getNomess()
+{	return Arrays.asList(nomes);
+}

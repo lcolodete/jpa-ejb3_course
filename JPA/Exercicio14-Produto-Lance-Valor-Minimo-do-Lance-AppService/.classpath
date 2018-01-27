@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.USER_LIBRARY/HIBERNATE"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.USER_LIBRARY/HIBERNATE ENTITY MANAGER"/>
+	<classpathentry exported="true" kind="var" path="CONSOLE" sourcepath="/CONSOLE_SRC"/>
+	<classpathentry exported="true" kind="var" path="ORACLE_DRIVER"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="conf"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

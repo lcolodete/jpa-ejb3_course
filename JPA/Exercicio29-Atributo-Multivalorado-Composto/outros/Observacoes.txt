@@ -1,0 +1,14 @@
+COLEÇÃO DE OBJETOS DEPENDENTES
+==============================
+
+ATENÇÃO
+=======
+
+Como neste exercício um telefone não é apenas um objeto do  tipo
+String (é representado por um objeto do tipo Telefone que possui
+um ddd e um número), é preciso implementar os métodos hashcode()
+e  equals()  para  a  classe  Telefone  caso  contrário não  irá 
+funcionar. Experimente executar este exercício após comentar  os 
+métodos  hashcode()  e  equals()  para  verificar  que  não  irá 
+funcionar.
+

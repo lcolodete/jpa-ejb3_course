@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- 
+   | Este arquivo define as queues que sao utilizadas no exercicio sobre MDBs.
+   |
+   | Pode-se adicionar a este arquivo outros destinos, ou tambem e possivel
+   | criar outros arquivos *-service.xml para conter outros destinos.
+ -->
+
+<server>
+
+  <mbean code="org.jboss.mq.server.jmx.Queue"
+         name="jboss.mq.destination:service=Queue,name=processaPedidoQueue">
+    <depends optional-attribute-name="DestinationManager">jboss.mq:service=DestinationManager</depends>
+  </mbean>
+  
+  <mbean code="org.jboss.mq.server.jmx.Queue"
+         name="jboss.mq.destination:service=Queue,name=processaPagamentoQueue">
+    <depends optional-attribute-name="DestinationManager">jboss.mq:service=DestinationManager</depends>
+  </mbean>
+
+</server>

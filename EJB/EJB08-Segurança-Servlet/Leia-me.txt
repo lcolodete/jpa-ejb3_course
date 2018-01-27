@@ -1,0 +1,69 @@
+                                       A T E N Ç Ã O
+                                       =============
+
+A  aplicação  WEB  utiliza  o  realm  default: users.properties e roles.properties e a 
+aplicação   EJB   também.  Foi  preciso  acrescentar  os  arquivos  users.properties e 
+roles.properties em ambos os módulos.
+
+Para  que o EJB seja  validado quanto a  segurança, é preciso  especificar um security
+domain. Se  especificarmos um  security domain que não existe o JBoss  utiliza o realm
+default. Se especificarmos um  security domain que existe, ele será verificado.  E  se
+não especificarmos nenhum security domain, o EJB sempre será executado, mas neste caso
+não poderemos  utilizar o método context.isUserInRole("admin") uma vez que não  haverá
+um security domain. 
+
+======================================================================================
+
+Uma típica "enterprise Java application" pode conter várias classes Java de diferentes
+tipos, tais como EJBs, servlets, managed beans JSF, e classes do tipo entidade,  assim
+como arquivos estáticos tais como arquivos JSP e HTML. 
+
+Uma aplicação web junta com  EJBs  contitui  uma  "enterprise aplication" que pode ser 
+instalada (deployed) em um servidor de aplicações.  Para  efetuar o deploy e  executar
+uma aplicação é preciso  empacotar  toda a aplicação - o módulo web e os EJBs - em  um
+único arquivo .ear.  
+
+O conteúdo de um arquivo .ear:
+
+META-INF
+   application.xml
+arquivo1-ejb.jar
+arquivo2-ejb.jar
+arquivo.war
+lib
+   umArquivo.jar
+   outroArquivo.jar
+   
+O conteúdo do arquivo application.xml:
+
+<?xml version="1.0" encoding="UTF-8"?>
+<application>
+	<module>
+		<ejb>arquivo1-ejb.jar</ejb>
+	</module>
+	<module>
+		<ejb>arquivo2-ejb.jar</ejb>
+	</module>
+	<module>
+		<web>
+			<web-uri>arquivo.war</web-uri>
+			<context-root>nomeDaAplicacaoWeb</context-root>
+		</web>
+	</module>
+</application>
+
+
+Cada arquivo .jar possui um "deployment descriptor" opcional  que descreve o  arquivo.
+É possível, no entanto, utilizar anotações em vez de "deployment descriptors". 
+
+O  arquivo .ear  acima  identifica  explicitamente  cada um dos artefatos como um tipo 
+específico  de  módulo.  Quando  se  efetua  o deploy de um arquivo .ear o servidor de 
+aplicações utiliza as informações contidas neste  arquivo  para  efetuar  o  deploy de 
+cada módulo. Em Java EE 5.0 os deployment descriptors são opcionais, mesmo  o  arquivo
+application.xml do .ear.
+
+
+
+
+
+

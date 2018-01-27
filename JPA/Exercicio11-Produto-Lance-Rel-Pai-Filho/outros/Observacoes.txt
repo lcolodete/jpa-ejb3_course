@@ -1,0 +1,80 @@
+O que mudou:
+
+1. Acrescentei a anotação CascadeType.DELETE_ORPHAN na classe Produto:
+
+	@OneToMany (cascade = {CascadeType.REMOVE}, mappedBy = "produto")
+	@org.hibernate.annotations.Cascade
+		(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+
+2. No programa principal removi o teste que impede que um produto  seja 
+   removido se ele tiver lances.
+
+
+Relacionamento Pai-Filho:
+========================
+
+O mapeamento definido até o momento entre Lance e  Produto é  bastante 
+fraco. Este  mapeamento poderia ser  utilizado em  um sistema real  se 
+ambas as entidades tivessem seu próprio ciclo de vida e fossem criadas 
+e  removidas  por  processos  do  negócio  não  relacionados.  Algumas 
+associações  são  mais  fortes, isto é,  seus  ciclos de vida não  são 
+verdadeiramente independentes. 
+
+No exemplo  apresentado  parece  razoável que a  deleção de um  produto 
+provoque a deleção de todos os lances do produto. Uma instância do tipo
+Lance em particular referencia apenas uma instância de Produto por toda
+a sua vida. 
+
+Se a opção cascading delete for habilitada, a associação entre  Produto 
+e Lance terá o nome de relacionamento pai/filho.  Em um  relacionamento 
+pai/filho a entidade pai é responsável pelo ciclo de vida das entidades 
+filho  associadas.  Esta é a  semântica da  composição, mas  neste caso 
+apenas  entidades estão  envolvidas;  Lance não é do  tipo valor (value 
+type). A vantagem de se utilizar um  relacionamento  pai/filho é que  o 
+filho pode ser  carregado  individualmente ou referenciado  diretamente 
+por  outra  entidade.  Um  lance,  por exemplo,  pode ser  carregado  e 
+manipulado sem  que o produto que o possui  necessite ser carregado, ou 
+pode  ser  armazenado  sem  que  o  produto que o  possui  precise  ser 
+armazenado  (ao  mesmo  tempo).    Além  destes  aspectos,   uma  mesma 
+instância  de  Lance  será  referenciada por uma segunda propriedade de 
+Produto denominada lanceVencedor.   Objetos do tipo valor não podem ser 
+compartilhados. Para remodelar a associação entre Produto e Lance  como 
+uma associação pai/filho, a única modificação necessária é no  atributo 
+CascadeType, conforme vem acima.
+
+
+A opção DELETE_ORPHAN deve ser utilizada para indicar que:
+
+• Qualquer  Lance  persistente deve ser  deletado  se  referenciado por
+  um Produto que fosse deletado.
+
+• Qualquer  instância  da  classe  Lance  deve  ser deletada se ela for 
+  removida da coleção de lances de um Produto persistente. O Hibernate, 
+  assumindo  que  o  lance  só  é  referenciado  por  este produto, irá 
+  considerá-lo órfão.
+
+
+É possível mapear associações com os seguintes atributos:
+========================================================
+
+Exemplo: 	@OneToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE },
+			           mappedBy = "produto")
+
+• cascade=”none”             O  default.  Diz  à  JPA  para   ignorar  a 
+                             associação.
+
+• CascadeType.MERGE          Apenas as operações EntityManager.merge são
+                             propagadas às entidades relacionadas.
+                                     
+• CascadeType.PERSIST        Apenas  as  operações EntityManager.persist
+                             propagadas às entidades relacionadas.
+
+• CascadeType.REFRESH        Apenas  as  operações EntityManager.refresh
+                             propagadas às entidades relacionadas.
+
+• CascadeType.REMOVE         Apenas  as  operações  EntityManager.remove
+                             propagadas às entidades relacionadas.
+
+• CascadeType.ALL            Todas as  operações  do  EntityManager  são 
+                             propagadas às entidades relacionadas.
+

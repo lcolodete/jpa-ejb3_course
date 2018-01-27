@@ -1,0 +1,14 @@
+MUITO IMPORTANTE
+================
+
+Como cada Cartao está associado a uma ocorrência de ClienteContaCartao, 
+qdo  todos os  cartões  são  listados,  pada cada  Cartao recuperado  é 
+emitido  um select para  recuperar a ocorrência de ClienteContaCartao à 
+qual o Cartao está associado.  Para evitar este select é preciso  fazer
+com que a  associação entre  Cartao e  ClienteContaCartao  deixe de ser 
+bidirecional.   Isto   é,   para   uma   determinada   ocorrência    de 
+ClienteContaCartao  seria  possível  descobrir o  Cartao associado, mas 
+para uma ocorrência de Cartao não seria possível descobrir (através  da 
+associação) a ocorrência de ClienteContaCartao associada.
+
+

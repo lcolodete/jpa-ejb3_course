@@ -1,0 +1,121 @@
+                                 A T E N Ç Ã O
+                                 =============
+
+Sustitua  o  arquivo  server\default\conf\login-config.xml  pelo  arquivo que se 
+encontra   na  pasta   "Sustitua o arquivo server-default-conf-login-config.xml"
+da aplicação cliente.
+
+================================================================================
+
+O JBoss suporta três tipos de domínio de segurança: bancos de dados relacionais,
+LDAP  (Lightweight  Directory  Access  Protocol)  como  o  Active  Directory  da
+Microsoft e um arquivo texto.  Neste  exercício iremos utilizar um arquivo texto
+para armazenar usuários, senhas e perfis. Domínios de segurança são configurados
+em: 
+
+       jboss-4.2.0.GA/server/default/conf/login-config.xml 
+
+O atributo name do elemento <application-policy> contém o nome do seu domínio de
+segurança.  Neste caso, "security-domain-exercicio07". Iremos  referenciar  este  
+nome ao configurar os EJBs para segurança. 
+
+São utilizados dois arquivos para configurar informações de segurança:  eles são
+definidos pelas opções de módulos usersProperties e  rolesProperties. Os valores
+devem  referenciar  arquivos  que  devem  estar  disponíveis  no  classpath   da 
+aplicação.
+
+O  arquivo  usuarios-exercicio07Properties.properties  contém   pares   do  tipo 
+"usuario=senha".
+
+O arquivo perfis-exercicio07.properties define quais perfis estão  associados  a
+um usuário.  Este  arquivo  possui  pares do tipo "nome=perfil1,perfil2,perfil3"
+que indica para cada usuário quais são os seus perfis.
+
+Segurança em um ambiente Java EE é  baseada na API JAAS (Java Authentication and
+Authorization Service API). JAAS essencialmente separa o sistema de autenticação 
+da aplicação EE através da utilização de uma API plugável. Em outras palavras, a      
+aplicação  Java  EE  precisa apenas saber como falar com a API JAAS. A API JAAS,
+por outro lado, sabe como falar com o sistema  de autenticação  subjacente  como
+um Lightweight  Directory  Access  Protocol  (LDAP),  como  o  Active  Directory
+da  Microsoft  ou  Oracle  Internet  Directory  (OID)  utilizando um plug-in  do
+fabricante.
+
+Logo, é possível substituir sistemas de autenticação simplesmente trocando plug-
+ins. Isto é,  sem  mexer no  código fonte da  aplicação. Além da autenticação, o 
+servidor de aplicações utiliza internamente JAAS para efetuar a autorização para
+as camadas web e EJB.
+
+Quando  um  usuário  é  autenticado  em  uma  camada  Java  EE,  o  contexto  de
+autenticação  é  passado  através  das  camadas,  sempre que possível, em vez de
+repetir o passo da autenticação. O objeto Principal representa este contexto  de
+autenticação compartilhado e validado. 
+
+Infelizmente  ainda  é  uma tarefa difícil efetuar a autenticação e acessar EJBs 
+através de uma aplicação cliente standalone, sem  nenhuma ajuda de um  container
+servlet.  Isto  faz  com  que  seja necessário conhecer mais profundamente a API 
+JAAS. Você teria que implementar todos os passos de autenticação que o container 
+servlet  abstrai  do  programador.  Mas  felizmente, esta tarefa não precisa ser 
+realizada com frequência uma vez que a  maioria  dos  servidores  de  aplicações 
+provêem um módulo de login JAAS que pode ser utilizado pelas aplicações.
+
+Por outro lado, o modelo de autorização de EJB é simples e poderoso.  Assim como
+o   gerenciamento  de   transação,  a  autenticação   pode  ser  declarativa  ou 
+programática. E assim como no gerenciamento de transação, as características  de
+segunça discutidas aqui se aplicam a beans de sessão e a MDBs.  Não se aplicam a
+entidades JPA.
+
+Segurança Declarativa
+=====================
+
+@DeclareRoles("ADMIN", "FUNCIONARIO")  - É altamente  recomendável  declarar  os         
+                                         perfis de segurança  utilizados em  uma 
+                                         aplicação.   Esta   anotação   pode ser 
+                                         utilizada  a  nível  de  classe  ou  de
+                                         método. Alternativamente poderíamos ter 
+                                         especificado   perfis   para   toda   a 
+                                         aplicação ou para um módulo EJB através
+                                         de   um    descritor    de   instalação 
+                                         (deployment descriptor).
+
+                                         Se os  perfis  não  forem  declarados o 
+                                         container irá  construir  uma  lista de 
+                                         perfis    inspecionando   a    anotação 
+                                         @rolesAllowed.
+
+@RolesAllowed("ADMIN", "FUNCIONARIO")  - Especifica  quais  perfis podem acessar 
+                                         os  métodos  de  um  EJB. Esta anotação 
+                                         pode ser especificada a nível de classe
+                                         ou de método. Quando  especificada para 
+                                         um   método,   declara   a   lista   de 
+                                         autenticação   para   este   método  em 
+                                         particular. Pode-se efetuar o  override
+                                         de  uma  designação  a nível de classe, 
+                                         repetindo    a    anotação    para   um 
+                                         determinado método. 
+
+@PermitAll                             - Especifica  que  qualquer  perfil  pode 
+                                         ser   utilizado   para   executar    um 
+                                         determinado  método. Esta anotação pode 
+                                         ser utilizada a nível de  classe ou  de 
+                                         método.
+
+@DenyAll                               - Especifica  que  nenhum    perfil  pode 
+                                         ser   utilizado   para   executar    um 
+                                         determinado método. Esta anotação  pode 
+                                         ser utilizada a  nível de classe ou  de 
+                                         método   e   é  utilizada   quando  uma 
+                                         aplicação é instalada  em  um  ambiente 
+                                         onde não se  deseja que uma determinada
+                                         funcionalidade fique disponível para os
+                                         usuários. 
+
+As anotações @PermitAll,  @DenyAll e @RolesAllowed não podem ser simultaneamente 
+utilizadas para uma determinada classe ou para um determinado método.
+
+@RunAs("ADMIN")                        - Esta anotação deve ser utilizada quando
+                                         se  necessita  designar,  em  tempo  de 
+                                         execução,  um  novo  perfil  ao usuário 
+                                         corrente para  que  ele  possa executar 
+                                         um método de outro EJB que necessita do 
+                                         tal perfil para ser executado.
+                                          

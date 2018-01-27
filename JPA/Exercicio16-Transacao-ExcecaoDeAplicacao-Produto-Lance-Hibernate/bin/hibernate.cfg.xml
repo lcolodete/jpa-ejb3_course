@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE hibernate-configuration PUBLIC
+    "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+   <session-factory>
+      <property name="hibernate.connection.driver_class">
+         oracle.jdbc.driver.OracleDriver
+      </property>
+      <property name="hibernate.connection.url">
+         jdbc:oracle:thin:@sbd:1521:orcl
+      </property>
+      <property name="hibernate.connection.username">JPA01</property>
+      <property name="hibernate.connection.password">JPA01</property>
+      <property name="dialect">org.hibernate.dialect.OracleDialect</property>
+      <property name="show_sql">true</property>
+      <property name="format_sql">true</property>
+
+      <property name="hibernate.current_session_context_class">thread</property>
+
+      <!-- Ao se utilizar este esquema de recuperção da  sessão  corrente
+           através do método sessionFactory.getCurrentSession(), todos os 
+           métodos precisam ser transacionais: uma exigência do Hibernate
+           uma  vez que a forma de se  fechar  a sessão é  através de  um
+           commit ou de um rollback na transação.
+      -->		
+
+      <!-- 
+           Arquivos de mapeamento caso as anotações não sejam utilizadas:
+      
+	       <mapping resource="Produto.hbm.xml"/>		
+	       <mapping resource="Lance.hbm.xml"/>		
+      -->		
+      
+      <mapping class="exercicio16.produto.Produto"/>		
+      <mapping class="exercicio16.lance.Lance"/>		
+
+   </session-factory>
+</hibernate-configuration>

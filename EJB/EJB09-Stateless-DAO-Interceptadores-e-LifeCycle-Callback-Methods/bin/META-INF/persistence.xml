@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence>
+   <persistence-unit name="EJB">
+      <jta-data-source>java:/OracleDS1</jta-data-source>
+   </persistence-unit>
+</persistence>

@@ -1,0 +1,2 @@
+TENTAR REMOVER UM PRODUTO COM LANCES E VERIFICAR QUE NÃO É POSSÍVEL.
+===================================================================

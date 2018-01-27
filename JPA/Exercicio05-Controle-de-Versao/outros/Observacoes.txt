@@ -1,0 +1,44 @@
+Utilizando o Controle de Versões
+================================
+
+O número de versão é apenas um contador – ele não possui nenhum
+outro significado. Algumas pessoas preferem utilizar, em vez do 
+número de  versão, um  timestamp.  No  entanto,  teoricamente o 
+timestamp é um pouco  menos seguro  uma vez que duas transações 
+concorrentes podem ser executadas no mesmo milissegundo. 
+
+O  programador  não  deve  atribuir  um  valor para o número de 
+versão.  O  Hibernate  inicializará o  valor  quando o  usuário
+salvar a linha da tabela pela primeira  vez e irá incrementá-lo
+ou ressetá-lo sempre que o objeto for modificado.
+
+Quando o  Hibernate  atualiza  um comentário,  por exemplo, ele 
+utiliza a coluna versao na cláusula WHERE do comando SQL:
+
+update COMENTARIO 
+set TEXTO_COMENTARIO = 'Novo texto de comentário',
+    VERSAO = 3
+Where ID = 123 and 
+      VERSAO = 2;
+
+Se outra transação tivesse atualizado o mesmo  comentário desde 
+que ele foi lido pela transação da aplicação corrente, a coluna 
+VERSAO  não conteria o valor 2, e a linha não seria atualizada. 
+Neste  caso  o  Hibernate   verificaria  o   número  de  linhas 
+atualizadas  retornado pelo driver  JDBC e propagaria a exceção 
+StaleObjectStateException.
+
+Utilizando esta exceção, o usuário da segunda transação poderia 
+receber a seguinte mensagem de erro:  "Os dados que você tentou 
+salvar foram  modificados por  outro usuário. Tente novamente". 
+Desta  forma o primeiro a comitar  vence.  Alternativamente, se 
+poderia capturar  a exceção e  mostrar ao  segundo usuário  uma 
+nova  tela,  permitindo  ao  usuário  mesclar   manualmente  as 
+modificações  geradas pelas  duas transações.  Esta abordagem é 
+conhecida como lock otimista porque  assume que tudo vai correr 
+bem, levando em conta que a  modificação conflitante de dados é 
+rara. 
+
+Aplicações  multiusuários  geralmente  utilizam  por  default o 
+controle de concorrência otimista e utilizam o lock  pessimista 
+quando estritamente necessário.

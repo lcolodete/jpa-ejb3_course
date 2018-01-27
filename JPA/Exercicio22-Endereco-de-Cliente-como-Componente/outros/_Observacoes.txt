@@ -1,0 +1,23 @@
+
+
+Em termos da modelagem orientada a objetos, esta associação é um tipo 
+de agregação - um relacionamento do tipo "parte de". Uma agregação  é
+uma forte forma de associação: ela possui uma semântica adicional com
+respeito ao ciclo de  vida dos  objetos.  Neste caso, temos uma forma
+ainda mais forte denominada composição, onde o ciclo de vida da parte
+é dependente do ciclo de vida do todo. 
+
+Não há diferença entre a composição e  outros estilos mais fracos  de 
+associação em  relação à  implementação Java.  Mas no contexto de  um
+ORM, existe uma grande diferença: uma classe composta é  candidata  a
+um tipo valor. Java não possui o conceito de composição - um atributo
+de uma classe não pode ser marcado como um componente ou  composição.
+A única diferença está no identificador do objeto:  um componente não
+possui  identificador,  logo  a  classe  componente  não  requer  uma
+propriedade   identificadora  ou   identificador  de   mapeamento.  A
+composição  entre  Cliente  e  Endereco  existe  apenas  a  nível  de 
+metadata. O Hibernate é informado (no documento de mapeamento) de que
+Endereco é do tipo valor.
+
+O Hibernate utiliza o termo "component" para uma classe definida pelo
+usuário que é persistida na mesma tabela que a entidade que a possui.

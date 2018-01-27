@@ -1,0 +1,51 @@
+Sempre que se efetua o  deploy de um bean de sessão com uma interface
+remota, o JBoss  cria uma entrada no namespace JNDI global. A ligação
+JNDI default para a interface remota é obtida através da concatenação
+do nome EJB do bean com /remote.
+
+Com a anotação  @RemoteBinding específica do JBoss é possível mudar o      
+nome JNDI do EJB.
+
+   No EJB, coloca-se a anotação abaixo, antes do nome da classe EJB:
+
+		@Stateless
+		@RemoteBinding(jndiBinding="LanceDAORemote")
+		public class LanceDAOBean implements LanceDAORemote
+
+   No Cliente:
+
+		Context jndiContext = new javax.naming.InitialContext();
+		Object ref = jndiContext.lookup("LanceDAORemote");
+		LanceDAORemote dao = (LanceDAORemote)ref;
+
+Através do  arquivo jboss.xml, que deve ser colocado dentro da  pasta 
+META-INF do EJB, é possível também modificar o nome JNDI do EJB:
+
+   <jboss>
+      <enterprise-beans>
+         <session>
+            <ejb-name>LanceDAOBean</ejb-name>
+            <jndi-name>LanceDAORemote</jndi-name>
+         </session>
+      </enterprise-beans>
+   </jboss>
+
+Este exercício utiliza um datasource para o Oracle:
+
+- acrescentei o arquivo oracle-1-ds.xml em server\default\deploy
+- acrescentei classes12.jar em server\default\lib
+- alterei o datasource para OracleDS1 no arquivo persistence.xml 
+
+
+
+
+
+
+
+
+
+
+
+
+
+

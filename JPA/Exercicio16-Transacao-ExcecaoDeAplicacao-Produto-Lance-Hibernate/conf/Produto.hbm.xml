@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+   <class name="exercicio45.produto.Produto" table="PRODUTO">
+			
+      <id name="id" column="ID"> 
+         <generator class="sequence">
+            <param name="sequence">SEQ_PRODUTO</param>
+         </generator>
+      </id>
+		
+      <property name="nome" 
+                column="NOME"
+                type="string"
+                not-null="true"
+                access="field"/>
+      
+      <property name="descricao" 
+                column="DESCRICAO"
+                type="string"
+                not-null="true"
+                access="field"/>
+                
+      <property name="lanceMinimo" 
+                column="LANCE_MINIMO"
+                type="double"
+                not-null="true"
+                access="field"/>
+                
+      <property name="dataCadastro" 
+                column="DATA_CADASTRO"
+                type="date"
+                not-null="true"
+                access="field"/>
+
+      <property name="dataVenda" 
+                column="DATA_VENDA"
+                type="date"
+                access="field"/>
+
+      <set name="lances" 
+           order-by="ID asc">
+
+      	  <key column="PRODUTO_ID"/>
+          <one-to-many class="exercicio45.lance.Lance"/>
+
+      </set>
+
+   </class>	
+</hibernate-mapping>
+
+
+	

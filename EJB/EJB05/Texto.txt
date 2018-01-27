@@ -1,0 +1,51 @@
+IMPORTANTE
+==========
+
+Para  rodar  este  exercício  é  preciso,  em  primeiro  lugar, copiar o arquivo
+jbossmq-queues-service.xml para a pasta server\default\deploy do JBoss. Isto irá
+criar as filas (queues) de mensagens no JBoss.
+
+--------------------------------------------------------------------------------
+
+Message-driven bens suportam o processamento de mensagens  assíncronas.  EJB 2.1
+expandiu  a  definição  do  message-driven  bean  para  que  ele possa  suportar 
+qualquer sistema de mensagem através da JCA (Java Connector Architecture 1.5).
+
+EJB + JCA (de um lado) <------> Sistema de Mensagens XYZ (do outro lado)
+
+A  maioria dos fabricantes de servidores de aplicações possuem um "JMS provider"
+embutido e devem suportar outros "JMS providers" através de JCA. 
+
+JMS como um Recurso
+===================
+
+JMS é uma API neutra  (independente de fabricante)  que  pode ser utilizada para
+acessar sistemas de  mensagens corporativos.  Estes sistemas  facilitam a  troca
+de mensagens entre aplicações em uma rede. 
+
+Alguns  sistemas  de  mensagens  que  suportam  JMS:  JBossMQ,  MQSeries da IBM, 
+WebLogic JMS service da BEA, etc.
+
+Aplicações   que  utilizam   JSM  para   enviar  e  receber   mensagens  possuem 
+portabilidade entre os diversos sistemas de mensagens JMS.
+
+Aplicações  que  utilizam  JMS  são  denominadas  clientes  JMS,  e o sistema de
+mensagem  que  trata  do  roteamento  e  entrega das mensagens é denominado "JMS
+provider".  Uma  aplicação  JMS  é  um  sistema  de  negócio composto por muitos
+clientes  JMS  e  geralmente  por  um  JMS  provider.  O cliente JMS que envia a
+mensagem é chamado de producer (produtor) e o cliente JMS que recebe a  mensagem
+é chamado de consumer (consumidor). Um único cliente pode ser as duas coisas.
+
+Em  EJB,  enterprise  beans  de  todos  os  tipos podem utilizar JMS para enviar 
+mensagens.  As mensagens  são consumidas  por  outras  aplicações  java  ou  por 
+message-driven beans. JMS facilita o envio de  mensagens  a partir de enterprise
+beans utilizando um serviço de mensagem, às vezes denominado de "message broker" 
+ou router. Message brokers existem há  aproximadamente 20 anos - e o mais antigo 
+é o MQSeries da  IBM - mas  JMS é uma  API nova e foi  especificamente projetada 
+para entregar vários tipos de mensagens de uma aplicação Java para outra.
+
+
+
+ 
+
+ 

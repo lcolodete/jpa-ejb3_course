@@ -1,0 +1,25 @@
+-- Este exercício implementa o servlet TransfereFundos utilizando a API JNDI para 
+-- acessar o driver puro java
+
+-- Para executar o servlet TransfereFundos digite:
+
+http://localhost:7070/ejb08/exercicio/transfereFundos.html
+
+As contas bancárias existentes são 1, 2, 3, 4 e 5
+
+======================================================================================
+
+                                     A T E N Ç Ã O
+                                     =============
+
+A  aplicação  WEB  utiliza  o  realm  default: users.properties e roles.properties e a 
+aplicação   EJB   utiliza   o   security-domain-exercicio07    que  tb   aponta   para 
+users.properties e roles.properties.
+
+Para  que o EJB seja  validado quanto a  segurança, é preciso  especificar um security
+domain. Se  especificarmos um  security domain que não existe o JBoss  utiliza o realm
+default.
+
+======================================================================================
+
+
